@@ -1,5 +1,15 @@
 {
   "medias":[
+    {
+      "nom": "Blast",
+      "continent": "Europe",
+      "pays": "France",
+      "code_pays": "FR",
+      "region": null,
+      "categorie": "Actualités",
+      "langue": "fr",
+      "url": "https://www.blast-info.fr/"
+    },
   {
     "nom": "Jeune Afrique",
     "continent": "Europe",

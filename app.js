@@ -7,6 +7,7 @@ const regionSelect = document.getElementById('regionSelect');
 const categorieSelect = document.getElementById('categorieSelect');
 const langueSelect = document.getElementById('langueSelect');
 const searchInput = document.getElementById('searchInput');
+const searchActiveCheckbox = document.getElementById('searchActiveCheckbox');
 const paginationEl = document.getElementById('pagination');
 const favOnlyCheckbox = document.getElementById('favOnlyCheckbox');
 
@@ -14,7 +15,6 @@ let allMedias = [];
 let currentPage = 1;
 const pageSize = 24;
 
-// ensemble d'IDs de favoris (clé locale : media.url)
 let favoriteSet = new Set();
 
 const currentFilters = {
@@ -326,6 +326,7 @@ function resetAllFilters(keepSearch = false, keepFavOnly = false) {
   if (!keepSearch) {
     currentFilters.search = '';
     if (searchInput) searchInput.value = '';
+    if (searchActiveCheckbox) searchActiveCheckbox.checked = false;
   }
 
   if (!keepFavOnly) {
@@ -362,7 +363,8 @@ function getFilteredMedias(medias, filters) {
 
     if (filters.search) {
       const q = filters.search.toLowerCase();
-      const haystack = `${nom} ${url} ${pays} ${region} ${categorie} ${langue}`.toLowerCase();
+      // Recherche limitée au nom du média et au pays
+      const haystack = `${nom} ${pays}`.toLowerCase();
       if (!haystack.includes(q)) return false;
     }
 
@@ -421,6 +423,7 @@ function renderMedias() {
     card.appendChild(header);
 
     const meta = document.createElement('p');
+    meta.className = 'media-meta';
     const parts = [];
     if (pays) parts.push(pays);
     if (region) parts.push(region);
@@ -429,7 +432,6 @@ function renderMedias() {
     meta.textContent = parts.join(' · ');
     card.appendChild(meta);
 
-    // étoile de favori
     const favBtn = document.createElement('span');
     favBtn.className = 'favorite-toggle';
     if (isFavorite(m)) {
@@ -551,60 +553,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // bouton "X" pour nettoyer la recherche
-  let clearBtn = null;
-  if (searchInput && searchInput.parentElement) {
-    clearBtn = document.createElement('button');
-    clearBtn.type = 'button';
-    clearBtn.className = 'search-clear-btn';
-    clearBtn.setAttribute('aria-label', 'Effacer la recherche');
-    clearBtn.textContent = '✕';
-    searchInput.parentElement.appendChild(clearBtn);
-  }
+  // RECHERCHE : texte + case d'activation
 
-  function updateClearButtonVisibility() {
-    if (!clearBtn) return;
-    if (searchInput.value.trim() === '') {
-      clearBtn.style.display = 'none';
-    } else {
-      clearBtn.style.display = 'inline-flex';
-    }
-  }
-
-  // RECHERCHE : réinitialise tous les filtres + favoris-only
   if (searchInput) {
-    // saisie classique
     searchInput.addEventListener('input', () => {
-      resetAllFilters(true, false);
-      currentFilters.search = searchInput.value.trim();
+      const value = searchInput.value.trim();
+      currentFilters.search = value;
+      if (searchActiveCheckbox) {
+        searchActiveCheckbox.checked = value.length > 0;
+      }
       currentPage = 1;
       updateUI();
-      updateClearButtonVisibility();
     });
 
-    // touche Enter : valider et enlever le focus
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
+        if (searchInput.value.trim().length > 0 && searchActiveCheckbox) {
+          searchActiveCheckbox.checked = true;
+        }
         searchInput.blur();
       }
     });
-
-    updateClearButtonVisibility();
   }
 
-  if (clearBtn && searchInput) {
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      resetAllFilters(false, false);
+  if (searchActiveCheckbox) {
+    searchActiveCheckbox.addEventListener('change', () => {
+      if (!searchActiveCheckbox.checked) {
+        currentFilters.search = '';
+        if (searchInput) searchInput.value = '';
+      } else {
+        currentFilters.search = searchInput ? searchInput.value.trim() : '';
+      }
       currentPage = 1;
       updateUI();
-      updateClearButtonVisibility();
-      searchInput.blur();
     });
   }
 
   // FAVORIS SEULEMENT : réinitialise filtres + recherche
+
   if (favOnlyCheckbox) {
     favOnlyCheckbox.addEventListener('change', () => {
       currentFilters.onlyFavorites = favOnlyCheckbox.checked;
