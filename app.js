@@ -181,4 +181,393 @@ function populateContinentFilter() {
 function populatePaysFilter() {
   const paysSet = new Set();
   allMedias.forEach(m => {
-    const p = safeTe
+    const p = safeText(m.pays);
+    if (p) paysSet.add(p);
+  });
+
+  const sorted = Array.from(paysSet).sort((a, b) => {
+    const prio = (p) => (p === 'France' ? 0 : 1);
+    if (prio(a) !== prio(b)) return prio(a) - prio(b);
+    return a.localeCompare(b);
+  });
+
+  paysSelect.innerHTML = '<option value="">Tous les pays</option>';
+  sorted.forEach(pays => {
+    const opt = document.createElement('option');
+    opt.value = pays;
+    opt.textContent = pays;
+    paysSelect.appendChild(opt);
+  });
+}
+
+function populateRegionFilter() {
+  const map = new Map();
+
+  allMedias.forEach(m => {
+    const continent = safeText(m.continent);
+    const pays = safeText(m.pays);
+    const region = safeText(m.region);
+
+    if (!region) return;
+
+    const key = `${continent}||${pays}||${region}`;
+    if (!map.has(key)) {
+      map.set(key, { continent, pays, region });
+    }
+  });
+
+  let entries = Array.from(map.values());
+
+  entries.sort((a, b) => {
+    const prioContinent = (c) => (c === 'Europe' ? 0 : 1);
+    const prioPays = (p) => (p === 'France' ? 0 : 1);
+
+    if (prioContinent(a.continent) !== prioContinent(b.continent)) {
+      return prioContinent(a.continent) - prioContinent(b.continent);
+    }
+    if (prioPays(a.pays) !== prioPays(b.pays)) {
+      return prioPays(a.pays) - prioPays(b.pays);
+    }
+    if (a.continent !== b.continent) {
+      return a.continent.localeCompare(b.continent);
+    }
+    if (a.pays !== b.pays) {
+      return a.pays.localeCompare(b.pays);
+    }
+    return a.region.localeCompare(b.region);
+  });
+
+  const groups = [];
+  let currentGroupKey = null;
+  let currentGroup = null;
+
+  entries.forEach(item => {
+    const groupKey = `${item.continent}||${item.pays}`;
+    if (groupKey !== currentGroupKey) {
+      if (currentGroup) groups.push(currentGroup);
+      currentGroupKey = groupKey;
+      currentGroup = {
+        continent: item.continent,
+        pays: item.pays,
+        regions: []
+      };
+    }
+    currentGroup.regions.push(item.region);
+  });
+  if (currentGroup) groups.push(currentGroup);
+
+  regionSelect.innerHTML = '';
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Toutes les régions';
+  regionSelect.appendChild(defaultOption);
+
+  groups.forEach(group => {
+    const label = `${group.continent} / ${group.pays}`;
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = label;
+
+    group.regions.forEach(region => {
+      const opt = document.createElement('option');
+      opt.value = region;
+      opt.textContent = region;
+      optgroup.appendChild(opt);
+    });
+
+    regionSelect.appendChild(optgroup);
+  });
+}
+
+function populateCategorieFilter() {
+  const categories = new Set();
+  allMedias.forEach(m => {
+    const c = safeText(m.categorie);
+    if (c) categories.add(c);
+  });
+
+  const sorted = Array.from(categories).sort((a, b) => a.localeCompare(b));
+
+  categorieSelect.innerHTML = '<option value="">Toutes les catégories</option>';
+  sorted.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    categorieSelect.appendChild(opt);
+  });
+}
+
+function populateLangueFilter() {
+  const langues = new Set();
+  allMedias.forEach(m => {
+    const l = safeText(m.langue);
+    if (l) langues.add(l);
+  });
+
+  const sorted = Array.from(langues).sort((a, b) => a.localeCompare(b));
+
+  langueSelect.innerHTML = '<option value="">Toutes les langues</option>';
+  sorted.forEach(langue => {
+    const opt = document.createElement('option');
+    opt.value = langue;
+    opt.textContent = langue;
+    langueSelect.appendChild(opt);
+  });
+}
+
+// Réinitialisation globale des filtres
+
+function resetAllFilters(keepSearch = false, keepFavOnly = false) {
+  currentFilters.continent = '';
+  currentFilters.pays = '';
+  currentFilters.region = '';
+  currentFilters.categorie = '';
+  currentFilters.langue = '';
+
+  if (!keepSearch) {
+    currentFilters.search = '';
+    if (searchInput) searchInput.value = '';
+  }
+
+  if (!keepFavOnly) {
+    currentFilters.onlyFavorites = false;
+    if (favOnlyCheckbox) favOnlyCheckbox.checked = false;
+  }
+
+  if (continentSelect) continentSelect.value = '';
+  if (paysSelect) paysSelect.value = '';
+  if (regionSelect) regionSelect.value = '';
+  if (categorieSelect) categorieSelect.value = '';
+  if (langueSelect) langueSelect.value = '';
+}
+
+// Filtrage
+
+function getFilteredMedias(medias, filters) {
+  return medias.filter(m => {
+    const continent = safeText(m.continent);
+    const pays = safeText(m.pays);
+    const region = safeText(m.region);
+    const categorie = safeText(m.categorie);
+    const langue = safeText(m.langue);
+    const nom = safeText(m.nom);
+    const url = safeText(m.url);
+
+    if (filters.continent && continent !== filters.continent) return false;
+    if (filters.pays && pays !== filters.pays) return false;
+    if (filters.region && region !== filters.region) return false;
+    if (filters.categorie && categorie !== filters.categorie) return false;
+    if (filters.langue && langue !== filters.langue) return false;
+
+    if (filters.onlyFavorites && !isFavorite(m)) return false;
+
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      const haystack = `${nom} ${url} ${pays} ${region} ${categorie} ${langue}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+
+    return true;
+  });
+}
+
+// Rendu
+
+function renderMedias() {
+  const filtered = getFilteredMedias(allMedias, currentFilters);
+  const total = filtered.length;
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const pageItems = filtered.slice(start, end);
+
+  mediasContainer.innerHTML = '';
+
+  if (pageItems.length === 0) {
+    mediasContainer.innerHTML = '<p>Aucun média trouvé.</p>';
+    return;
+  }
+
+  pageItems.forEach(m => {
+    const nom = safeText(m.nom);
+    const pays = safeText(m.pays);
+    const region = safeText(m.region);
+    const categorie = safeText(m.categorie);
+    const langue = safeText(m.langue);
+    const url = safeText(m.url);
+    const codePays = safeText(m.code_pays).toLowerCase();
+
+    const card = document.createElement('a');
+    card.className = 'media-card';
+    card.href = url || '#';
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+
+    const header = document.createElement('div');
+    header.className = 'media-card-header';
+
+    if (codePays) {
+      const flagSpan = document.createElement('span');
+      flagSpan.className = `fi fi-${codePays}`;
+      header.appendChild(flagSpan);
+    }
+
+    const title = document.createElement('h3');
+    title.textContent = nom;
+    header.appendChild(title);
+
+    card.appendChild(header);
+
+    const meta = document.createElement('p');
+    const parts = [];
+    if (pays) parts.push(pays);
+    if (region) parts.push(region);
+    if (categorie) parts.push(categorie);
+    if (langue) parts.push(`Langue : ${langue}`);
+    meta.textContent = parts.join(' · ');
+    card.appendChild(meta);
+
+    // étoile de favori
+    const favBtn = document.createElement('span');
+    favBtn.className = 'favorite-toggle';
+    if (isFavorite(m)) {
+      favBtn.classList.add('is-favorite');
+      favBtn.textContent = '★';
+    } else {
+      favBtn.textContent = '☆';
+    }
+
+    favBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      toggleFavorite(m);
+      if (isFavorite(m)) {
+        favBtn.classList.add('is-favorite');
+        favBtn.textContent = '★';
+      } else {
+        favBtn.classList.remove('is-favorite');
+        favBtn.textContent = '☆';
+      }
+
+      if (currentFilters.onlyFavorites) {
+        updateUI();
+      }
+    });
+
+    card.appendChild(favBtn);
+
+    mediasContainer.appendChild(card);
+  });
+}
+
+function renderPagination() {
+  const filtered = getFilteredMedias(allMedias, currentFilters);
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  paginationEl.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = 'Précédent';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      updateUI();
+    }
+  });
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = 'Suivant';
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      updateUI();
+    }
+  });
+
+  const info = document.createElement('span');
+  info.textContent = `Page ${currentPage} / ${totalPages}`;
+
+  paginationEl.appendChild(prevBtn);
+  paginationEl.appendChild(info);
+  paginationEl.appendChild(nextBtn);
+}
+
+function updateUI() {
+  renderMedias();
+  renderPagination();
+}
+
+// Démarrage
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadFavorites();
+  loadMedias();
+
+  if (continentSelect) {
+    continentSelect.addEventListener('change', () => {
+      currentFilters.continent = continentSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  if (paysSelect) {
+    paysSelect.addEventListener('change', () => {
+      currentFilters.pays = paysSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  if (regionSelect) {
+    regionSelect.addEventListener('change', () => {
+      currentFilters.region = regionSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  if (categorieSelect) {
+    categorieSelect.addEventListener('change', () => {
+      currentFilters.categorie = categorieSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  if (langueSelect) {
+    langueSelect.addEventListener('change', () => {
+      currentFilters.langue = langueSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  // RECHERCHE : réinitialise tous les filtres + favoris-only
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      resetAllFilters(true, false);
+      currentFilters.search = searchInput.value.trim();
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  // FAVORIS SEULEMENT : réinitialise filtres + recherche
+  if (favOnlyCheckbox) {
+    favOnlyCheckbox.addEventListener('change', () => {
+      currentFilters.onlyFavorites = favOnlyCheckbox.checked;
+      resetAllFilters(false, true);
+      currentPage = 1;
+      updateUI();
+    });
+  }
+});
