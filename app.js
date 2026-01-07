@@ -551,6 +551,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // bouton "X" pour nettoyer la recherche
+  let clearBtn = null;
+  if (searchInput && searchInput.parentElement) {
+    clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'search-clear-btn';
+    clearBtn.setAttribute('aria-label', 'Effacer la recherche');
+    clearBtn.textContent = '✕';
+    searchInput.parentElement.appendChild(clearBtn);
+  }
+
+  function updateClearButtonVisibility() {
+    if (!clearBtn) return;
+    if (searchInput.value.trim() === '') {
+      clearBtn.style.display = 'none';
+    } else {
+      clearBtn.style.display = 'inline-flex';
+    }
+  }
+
   // RECHERCHE : réinitialise tous les filtres + favoris-only
   if (searchInput) {
     // saisie classique
@@ -559,6 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentFilters.search = searchInput.value.trim();
       currentPage = 1;
       updateUI();
+      updateClearButtonVisibility();
     });
 
     // touche Enter : valider et enlever le focus
@@ -567,6 +588,19 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         searchInput.blur();
       }
+    });
+
+    updateClearButtonVisibility();
+  }
+
+  if (clearBtn && searchInput) {
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      resetAllFilters(false, false);
+      currentPage = 1;
+      updateUI();
+      updateClearButtonVisibility();
+      searchInput.blur();
     });
   }
 
