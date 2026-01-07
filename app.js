@@ -553,11 +553,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // RECHERCHE : réinitialise tous les filtres + favoris-only
   if (searchInput) {
+    // saisie classique
     searchInput.addEventListener('input', () => {
       resetAllFilters(true, false);
       currentFilters.search = searchInput.value.trim();
       currentPage = 1;
       updateUI();
+    });
+
+    // touche Enter : valider et enlever le focus
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchInput.blur();
+      }
     });
   }
 
