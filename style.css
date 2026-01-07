@@ -75,6 +75,37 @@ body {
   transform: scale(1.1);
 }
 
+/* Icône de nettoyage dans la zone de recherche */
+
+.filter-search {
+  position: relative;
+}
+
+.filter-search input[type="text"] {
+  padding-right: 2rem; /* place pour le X */
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.2rem;
+  height: 1.2rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  display: none; /* affichée seulement s'il y a du texte */
+}
+
+.search-clear-btn:hover {
+  color: #475569;
+}
+
 /* optgroup pour régions */
 
 #regionSelect optgroup {
@@ -141,7 +172,7 @@ body {
   font-size: 1.1rem;
   color: #cbd5e1;
   cursor: pointer;
-  transition: color 0.08s ease, transform 0.08s ease;
+  transition: color 0.08s.ease, transform 0.08s ease;
 }
 
 .favorite-toggle:hover {

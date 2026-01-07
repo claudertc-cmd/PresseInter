@@ -1,85 +1,85 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Annuaire des médias</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <title>Annuaire des médias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- flag-icons (auto-hébergé) -->
-  <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
+    <!-- flag-icons (auto-hébergé) -->
+    <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
 
-  <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="site-header">
+<header class="site-header">
     <h1>Annuaire des médias</h1>
     <p>Explorez des médias par continent, pays, région, catégorie et langue.</p>
-  </header>
+</header>
 
-  <main class="site-main">
+<main class="site-main">
     <section class="filters">
-      <div class="filter-group">
-        <label for="continentSelect">Continent</label>
-        <select id="continentSelect">
-          <option value="">Tous les continents</option>
-        </select>
-      </div>
+        <div class="filter-group">
+            <label for="continentSelect">Continent</label>
+            <select id="continentSelect">
+                <option value="">Tous les continents</option>
+            </select>
+        </div>
 
-      <div class="filter-group">
-        <label for="paysSelect">Pays</label>
-        <select id="paysSelect">
-          <option value="">Tous les pays</option>
-        </select>
-      </div>
+        <div class="filter-group">
+            <label for="paysSelect">Pays</label>
+            <select id="paysSelect">
+                <option value="">Tous les pays</option>
+            </select>
+        </div>
 
-      <div class="filter-group">
-        <label for="regionSelect">Région</label>
-        <select id="regionSelect">
-          <option value="">Toutes les régions</option>
-        </select>
-      </div>
+        <div class="filter-group">
+            <label for="regionSelect">Région</label>
+            <select id="regionSelect">
+                <option value="">Toutes les régions</option>
+            </select>
+        </div>
 
-      <div class="filter-group">
-        <label for="categorieSelect">Catégorie</label>
-        <select id="categorieSelect">
-          <option value="">Toutes les catégories</option>
-        </select>
-      </div>
+        <div class="filter-group">
+            <label for="categorieSelect">Catégorie</label>
+            <select id="categorieSelect">
+                <option value="">Toutes les catégories</option>
+            </select>
+        </div>
 
-      <div class="filter-group">
-        <label for="langueSelect">Langue</label>
-        <select id="langueSelect">
-          <option value="">Toutes les langues</option>
-        </select>
-      </div>
+        <div class="filter-group">
+            <label for="langueSelect">Langue</label>
+            <select id="langueSelect">
+                <option value="">Toutes les langues</option>
+            </select>
+        </div>
 
-      <div class="filter-group filter-search">
-        <label for="searchInput">Recherche</label>
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Rechercher par nom, URL, pays, région..."
-        />
-      </div>
+        <div class="filter-group filter-search">
+            <label for="searchInput">Recherche</label>
+            <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Rechercher par nom, URL, pays, région..."
+            />
+        </div>
 
-      <div class="filter-group filter-fav">
-        <label>
-          <input type="checkbox" id="favOnlyCheckbox" />
-          Favoris Seulement
-        </label>
-      </div>
+        <div class="filter-group filter-fav">
+            <label>
+                <input type="checkbox" id="favOnlyCheckbox" />
+                Afficher seulement les favoris
+            </label>
+        </div>
     </section>
 
     <section class="medias-section">
-      <div id="medias" class="media-list"></div>
-      <div id="pagination" class="pagination"></div>
+        <div id="medias" class="media-list"></div>
+        <div id="pagination" class="pagination"></div>
     </section>
-  </main>
+</main>
 
-  <footer class="site-footer">
+<footer class="site-footer">
     <p>Annuaire médias &copy; 2026</p>
-  </footer>
+</footer>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
