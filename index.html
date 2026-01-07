@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Annuaire des médias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- flag-icons (auto-hébergé) -->
+  <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Annuaire de sites de presse</h1>
+  </header>
+
+  <main class="site-main">
+    <section class="filters">
+      <div class="filter-group">
+        <label for="search-nom">Recherche</label>
+        <input
+          type="text"
+          id="search-nom"
+          placeholder="Rechercher un média par nom..."
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-continent">Continent</label>
+        <select id="filter-continent">
+          <option value="">Tous les continents</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-pays">Pays</label>
+        <select id="filter-pays">
+          <option value="">Tous les pays</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-region">Région</label>
+        <select id="filter-region">
+          <option value="">Toutes les régions</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-categorie">Catégorie</label>
+        <select id="filter-categorie">
+          <option value="">Toutes les catégories</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>
+          <input type="checkbox" id="filter-favoris" />
+          Favoris uniquement
+        </label>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="results-header">
+        <div class="page-size">
+          <label for="page-size-select">
+            Médias par page <span id="media-count" class="media-count"></span>
+          </label>
+          <select id="page-size-select">
+            <option value="20">20</option>
+            <option value="40" selected>40</option>
+            <option value="80">80</option>
+            <option value="160">160</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="media-list" class="media-list"></div>
+      <div id="pagination" class="pagination"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Annuaire médias &copy; 2026</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
