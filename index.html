@@ -53,13 +53,16 @@
             </select>
         </div>
 
+        <!-- Bloc recherche : sans titre ni texte "Filtre actif" -->
         <div class="filter-group filter-search">
-            <label for="searchInput">Recherche</label>
-            <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Rechercher par nom, URL, pays, région..."
-            />
+            <div class="search-row">
+                <input type="checkbox" id="searchActiveCheckbox" />
+                <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Rechercher par nom, URL, pays, région..."
+                />
+            </div>
         </div>
 
         <div class="filter-group filter-fav">

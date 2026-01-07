@@ -51,32 +51,33 @@ body {
   font-size: 0.9rem;
 }
 
-/* Fonds clairs pour les filtres pour la lisibilité */
+/* Fonds pour les filtres */
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   background: #111827;
-  padding: 0.35rem 0.5rem 0.4rem;
-  border-radius: 0.5rem;
+  padding: 0.35rem 0.6rem 0.5rem;
+  border-radius: 0.7rem;
 }
 
 .filter-group label {
   font-size: 0.8rem;
-  color: #f9fafb; /* texte bien visible */
+  color: #f9fafb;
 }
 
 /* Inputs / selects */
 
 .filter-group select,
 .filter-group input[type="text"] {
-  padding: 0.4rem 0.55rem;
+  padding: 0.45rem 0.6rem;
   border-radius: 999px;
   border: 1px solid #4b5563;
   font-size: 0.85rem;
   background: #111827;
   color: #f9fafb;
+  width: 100%;
 }
 
 .filter-group select::placeholder,
@@ -105,42 +106,34 @@ body {
   gap: 0.4rem;
   display: inline-flex;
   font-size: 0.85rem;
-  color: #f9fafb; /* texte blanc lisible */
+  color: #f9fafb;
 }
 
 .filter-fav input[type="checkbox"] {
   transform: scale(1.1);
 }
 
-/* Icône de nettoyage dans la zone de recherche */
+/* Recherche : case + champ, sans label ni texte */
 
 .filter-search {
-  position: relative;
+  background: #111827;
 }
 
-.filter-search input[type="text"] {
-  padding-right: 2rem; /* place pour le X */
+.filter-search .search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.search-clear-btn {
-  position: absolute;
-  right: 0.6rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1.2rem;
-  height: 1.2rem;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: #e5e7eb;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0;
-  display: none; /* affichée seulement s'il y a du texte */
+/* la case garde sa taille, le champ prend tout le reste */
+#searchActiveCheckbox {
+  transform: scale(1.1);
+  flex: 0 0 auto;
 }
 
-.search-clear-btn:hover {
-  color: #fbbf24;
+.filter-search #searchInput {
+  flex: 1 1 auto;
+  min-width: 0; /* évite de déborder en flex */
 }
 
 /* optgroup pour régions */
