@@ -30,25 +30,6 @@ function safeText(value) {
   return String(value);
 }
 
-// Chargement des données
-async function loadMedias() {
-  try {
-    const response = await fetch('medias.json');
-    if (!response.ok) {
-      throw new Error('Erreur HTTP ' + response.status);
-    }
-    const data = await response.json();
-    allMedias = Array.isArray(data.medias) ? data.medias : [];
-    // Tri global initial (continent / pays / région / catégorie / nom) avec priorité Europe / France / région vide
-    allMedias.sort(mediaComparator);
-    populateFilters();
-    updateUI();
-  } catch (error) {
-    console.error('Erreur chargement medias.json', error);
-    mediasContainer.innerHTML = '<p>Erreur de chargement des médias.</p>';
-  }
-}
-
 // Comparateur global pour les cartes
 function mediaComparator(a, b) {
   const continentA = safeText(a.continent);
@@ -62,29 +43,23 @@ function mediaComparator(a, b) {
   const nomA = safeText(a.nom);
   const nomB = safeText(b.nom);
 
-  // Priorité continent : Europe en premier
   const prioContinent = (c) => (c === 'Europe' ? 0 : 1);
   if (prioContinent(continentA) !== prioContinent(continentB)) {
     return prioContinent(continentA) - prioContinent(continentB);
   }
 
-  // Priorité pays : France en premier
   const prioPays = (p) => (p === 'France' ? 0 : 1);
   if (prioPays(paysA) !== prioPays(paysB)) {
     return prioPays(paysA) - prioPays(paysB);
   }
 
-  // Continent alpha
   if (continentA !== continentB) {
     return continentA.localeCompare(continentB);
   }
-
-  // Pays alpha
   if (paysA !== paysB) {
     return paysA.localeCompare(paysB);
   }
 
-  // Région : vide en premier, puis alpha
   const isRegionEmptyA = regionA === '' ? 0 : 1;
   const isRegionEmptyB = regionB === '' ? 0 : 1;
   if (isRegionEmptyA !== isRegionEmptyB) {
@@ -94,7 +69,6 @@ function mediaComparator(a, b) {
     return regionA.localeCompare(regionB);
   }
 
-  // Catégorie puis nom
   if (categorieA !== categorieB) {
     return categorieA.localeCompare(categorieB);
   }
@@ -102,22 +76,43 @@ function mediaComparator(a, b) {
   return nomA.localeCompare(nomB);
 }
 
-// Remplissage des filtres (continent, pays, région, catégorie, langue)
+// Chargement des données
+async function loadMedias() {
+  try {
+    const response = await fetch('medias.json');
+    if (!response.ok) {
+      throw new Error('Erreur HTTP ' + response.status);
+    }
+    const data = await response.json();
+    allMedias = Array.isArray(data.medias) ? data.medias : [];
+
+    allMedias.sort(mediaComparator);
+
+    populateFilters();
+    updateUI();
+  } catch (error) {
+    console.error('Erreur chargement medias.json', error);
+    mediasContainer.innerHTML = '<p>Erreur de chargement des médias.</p>';
+  }
+}
+
+// Remplissage des filtres
 function populateFilters() {
   populateContinentFilter();
   populatePaysFilter();
-  populateRegionFilter(); // maintenant groupé Continent / Pays
+  populateRegionFilter();
   populateCategorieFilter();
   populateLangueFilter();
 }
 
-// Continent simple
+// Continent simple (Europe d'abord)
 function populateContinentFilter() {
   const continents = new Set();
   allMedias.forEach(m => {
     const c = safeText(m.continent);
     if (c) continents.add(c);
   });
+
   const sorted = Array.from(continents).sort((a, b) => {
     const prio = (c) => (c === 'Europe' ? 0 : 1);
     if (prio(a) !== prio(b)) return prio(a) - prio(b);
@@ -133,13 +128,14 @@ function populateContinentFilter() {
   });
 }
 
-// Pays simple (avec priorité France)
+// Pays simple (France d'abord)
 function populatePaysFilter() {
   const paysSet = new Set();
   allMedias.forEach(m => {
     const p = safeText(m.pays);
     if (p) paysSet.add(p);
   });
+
   const sorted = Array.from(paysSet).sort((a, b) => {
     const prio = (p) => (p === 'France' ? 0 : 1);
     if (prio(a) !== prio(b)) return prio(a) - prio(b);
@@ -157,14 +153,13 @@ function populatePaysFilter() {
 
 // Région avec regroupement Continent / Pays (optgroup)
 function populateRegionFilter() {
-  // Construire les groupes uniques (continent, pays, region)
-  const map = new Map(); // clé: continent|pays|region -> { continent, pays, region }
+  const map = new Map();
+
   allMedias.forEach(m => {
     const continent = safeText(m.continent);
     const pays = safeText(m.pays);
     const region = safeText(m.region);
 
-    // On ignore les régions totalement vides pour la liste
     if (!region) return;
 
     const key = `${continent}||${pays}||${region}`;
@@ -175,7 +170,6 @@ function populateRegionFilter() {
 
   let entries = Array.from(map.values());
 
-  // Tri des entrées : Europe / France en premier, puis alpha
   entries.sort((a, b) => {
     const prioContinent = (c) => (c === 'Europe' ? 0 : 1);
     const prioPays = (p) => (p === 'France' ? 0 : 1);
@@ -186,7 +180,6 @@ function populateRegionFilter() {
     if (prioPays(a.pays) !== prioPays(b.pays)) {
       return prioPays(a.pays) - prioPays(b.pays);
     }
-
     if (a.continent !== b.continent) {
       return a.continent.localeCompare(b.continent);
     }
@@ -196,7 +189,6 @@ function populateRegionFilter() {
     return a.region.localeCompare(b.region);
   });
 
-  // Regrouper par couple (continent, pays)
   const groups = [];
   let currentGroupKey = null;
   let currentGroup = null;
@@ -216,14 +208,12 @@ function populateRegionFilter() {
   });
   if (currentGroup) groups.push(currentGroup);
 
-  // Réinitialiser le select
   regionSelect.innerHTML = '';
   const defaultOption = document.createElement('option');
   defaultOption.value = '';
   defaultOption.textContent = 'Toutes les régions';
   regionSelect.appendChild(defaultOption);
 
-  // Remplir avec optgroup
   groups.forEach(group => {
     const label = `${group.continent} / ${group.pays}`;
     const optgroup = document.createElement('optgroup');
@@ -247,6 +237,7 @@ function populateCategorieFilter() {
     const c = safeText(m.categorie);
     if (c) categories.add(c);
   });
+
   const sorted = Array.from(categories).sort((a, b) => a.localeCompare(b));
 
   categorieSelect.innerHTML = '<option value="">Toutes les catégories</option>';
@@ -265,6 +256,7 @@ function populateLangueFilter() {
     const l = safeText(m.langue);
     if (l) langues.add(l);
   });
+
   const sorted = Array.from(langues).sort((a, b) => a.localeCompare(b));
 
   langueSelect.innerHTML = '<option value="">Toutes les langues</option>';
@@ -408,42 +400,55 @@ function updateUI() {
   renderPagination();
 }
 
-// Écouteurs filtres
-continentSelect.addEventListener('change', () => {
-  currentFilters.continent = continentSelect.value;
-  currentPage = 1;
-  updateUI();
-});
+// Tout brancher une fois le DOM prêt
+document.addEventListener('DOMContentLoaded', () => {
+  loadMedias();
 
-paysSelect.addEventListener('change', () => {
-  currentFilters.pays = paysSelect.value;
-  currentPage = 1;
-  updateUI();
-});
+  if (continentSelect) {
+    continentSelect.addEventListener('change', () => {
+      currentFilters.continent = continentSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
 
-regionSelect.addEventListener('change', () => {
-  currentFilters.region = regionSelect.value;
-  currentPage = 1;
-  updateUI();
-});
+  if (paysSelect) {
+    paysSelect.addEventListener('change', () => {
+      currentFilters.pays = paysSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
 
-categorieSelect.addEventListener('change', () => {
-  currentFilters.categorie = categorieSelect.value;
-  currentPage = 1;
-  updateUI();
-});
+  if (regionSelect) {
+    regionSelect.addEventListener('change', () => {
+      currentFilters.region = regionSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
 
-langueSelect.addEventListener('change', () => {
-  currentFilters.langue = langueSelect.value;
-  currentPage = 1;
-  updateUI();
-});
+  if (categorieSelect) {
+    categorieSelect.addEventListener('change', () => {
+      currentFilters.categorie = categorieSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
 
-searchInput.addEventListener('input', () => {
-  currentFilters.search = searchInput.value.trim();
-  currentPage = 1;
-  updateUI();
-});
+  if (langueSelect) {
+    langueSelect.addEventListener('change', () => {
+      currentFilters.langue = langueSelect.value;
+      currentPage = 1;
+      updateUI();
+    });
+  }
 
-// Démarrage
-document.addEventListener('DOMContentLoaded', loadMedias);
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      currentFilters.search = searchInput.value.trim();
+      currentPage = 1;
+      updateUI();
+    });
+  }
+});

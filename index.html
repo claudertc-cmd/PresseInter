@@ -12,72 +12,59 @@
 </head>
 <body>
   <header class="site-header">
-    <h1>Annuaire de sites de presse</h1>
+    <h1>Annuaire des médias</h1>
+    <p>Explorez des médias par continent, pays, région, catégorie et langue.</p>
   </header>
 
   <main class="site-main">
     <section class="filters">
       <div class="filter-group">
-        <label for="search-nom">Recherche</label>
-        <input
-          type="text"
-          id="search-nom"
-          placeholder="Rechercher un média par nom..."
-        />
-      </div>
-
-      <div class="filter-group">
-        <label for="filter-continent">Continent</label>
-        <select id="filter-continent">
+        <label for="continentSelect">Continent</label>
+        <select id="continentSelect">
           <option value="">Tous les continents</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label for="filter-pays">Pays</label>
-        <select id="filter-pays">
+        <label for="paysSelect">Pays</label>
+        <select id="paysSelect">
           <option value="">Tous les pays</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label for="filter-region">Région</label>
-        <select id="filter-region">
+        <label for="regionSelect">Région</label>
+        <select id="regionSelect">
           <option value="">Toutes les régions</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label for="filter-categorie">Catégorie</label>
-        <select id="filter-categorie">
+        <label for="categorieSelect">Catégorie</label>
+        <select id="categorieSelect">
           <option value="">Toutes les catégories</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label>
-          <input type="checkbox" id="filter-favoris" />
-          Favoris uniquement
-        </label>
+        <label for="langueSelect">Langue</label>
+        <select id="langueSelect">
+          <option value="">Toutes les langues</option>
+        </select>
+      </div>
+
+      <div class="filter-group filter-search">
+        <label for="searchInput">Recherche</label>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Rechercher par nom, URL, pays, région..."
+        />
       </div>
     </section>
 
-    <section class="results">
-      <div class="results-header">
-        <div class="page-size">
-          <label for="page-size-select">
-            Médias par page <span id="media-count" class="media-count"></span>
-          </label>
-          <select id="page-size-select">
-            <option value="20">20</option>
-            <option value="40" selected>40</option>
-            <option value="80">80</option>
-            <option value="160">160</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="media-list" class="media-list"></div>
+    <section class="medias-section">
+      <div id="medias" class="media-list"></div>
       <div id="pagination" class="pagination"></div>
     </section>
   </main>
