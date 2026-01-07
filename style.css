@@ -55,12 +55,24 @@ body {
 }
 
 .filter-group select,
-.filter-group input {
+.filter-group input[type="text"] {
   padding: 0.45rem 0.5rem;
   border-radius: 4px;
   border: 1px solid #d0d7de;
   font-size: 0.9rem;
   background-color: #fff;
+}
+
+.filter-fav label {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  display: inline-flex;
+  font-size: 0.9rem;
+}
+
+.filter-fav input[type="checkbox"] {
+  transform: scale(1.1);
 }
 
 /* optgroup pour régions */
@@ -90,6 +102,7 @@ body {
   color: inherit;
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
+  position: relative;
 }
 
 .media-card:hover {
@@ -117,6 +130,26 @@ body {
   margin: 0.2rem 0 0;
   font-size: 0.85rem;
   color: #555;
+}
+
+/* Étoile de favori */
+
+.favorite-toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: color 0.08s ease, transform 0.08s ease;
+}
+
+.favorite-toggle:hover {
+  transform: scale(1.1);
+}
+
+.favorite-toggle.is-favorite {
+  color: #facc15;
 }
 
 /* Pagination */

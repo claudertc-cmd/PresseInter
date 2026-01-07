@@ -8,10 +8,14 @@ const categorieSelect = document.getElementById('categorieSelect');
 const langueSelect = document.getElementById('langueSelect');
 const searchInput = document.getElementById('searchInput');
 const paginationEl = document.getElementById('pagination');
+const favOnlyCheckbox = document.getElementById('favOnlyCheckbox');
 
 let allMedias = [];
 let currentPage = 1;
 const pageSize = 24;
+
+// ensemble d'IDs de favoris (clé locale : media.url)
+let favoriteSet = new Set();
 
 const currentFilters = {
   continent: '',
@@ -19,18 +23,15 @@ const currentFilters = {
   region: '',
   categorie: '',
   langue: '',
-  search: ''
+  search: '',
+  onlyFavorites: false
 };
 
-// Utilitaire pour éviter d'afficher null / undefined
 function safeText(value) {
-  if (value === null || value === undefined) {
-    return '';
-  }
+  if (value === null || value === undefined) return '';
   return String(value);
 }
 
-// Comparateur global pour les cartes
 function mediaComparator(a, b) {
   const continentA = safeText(a.continent);
   const continentB = safeText(b.continent);
@@ -53,30 +54,79 @@ function mediaComparator(a, b) {
     return prioPays(paysA) - prioPays(paysB);
   }
 
-  if (continentA !== continentB) {
-    return continentA.localeCompare(continentB);
-  }
-  if (paysA !== paysB) {
-    return paysA.localeCompare(paysB);
-  }
+  if (continentA !== continentB) return continentA.localeCompare(continentB);
+  if (paysA !== paysB) return paysA.localeCompare(paysB);
 
   const isRegionEmptyA = regionA === '' ? 0 : 1;
   const isRegionEmptyB = regionB === '' ? 0 : 1;
   if (isRegionEmptyA !== isRegionEmptyB) {
     return isRegionEmptyA - isRegionEmptyB;
   }
-  if (regionA !== regionB) {
-    return regionA.localeCompare(regionB);
-  }
+  if (regionA !== regionB) return regionA.localeCompare(regionB);
 
-  if (categorieA !== categorieB) {
-    return categorieA.localeCompare(categorieB);
-  }
+  if (categorieA !== categorieB) return categorieA.localeCompare(categorieB);
 
   return nomA.localeCompare(nomB);
 }
 
+// Favoris – localStorage
+
+const FAVORITES_KEY = 'annuaireMediasFavorites';
+
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    if (!raw) {
+      favoriteSet = new Set();
+      return;
+    }
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)) {
+      favoriteSet = new Set(arr);
+    } else {
+      favoriteSet = new Set();
+    }
+  } catch (e) {
+    console.error('Erreur lecture favoris', e);
+    favoriteSet = new Set();
+  }
+}
+
+function saveFavorites() {
+  try {
+    const arr = Array.from(favoriteSet);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(arr));
+  } catch (e) {
+    console.error('Erreur sauvegarde favoris', e);
+  }
+}
+
+function getMediaId(m) {
+  const url = safeText(m.url);
+  if (url) return url;
+  const nom = safeText(m.nom);
+  const pays = safeText(m.pays);
+  const region = safeText(m.region);
+  return `${nom}::${pays}::${region}`;
+}
+
+function isFavorite(m) {
+  const id = getMediaId(m);
+  return favoriteSet.has(id);
+}
+
+function toggleFavorite(m) {
+  const id = getMediaId(m);
+  if (favoriteSet.has(id)) {
+    favoriteSet.delete(id);
+  } else {
+    favoriteSet.add(id);
+  }
+  saveFavorites();
+}
+
 // Chargement des données
+
 async function loadMedias() {
   try {
     const response = await fetch('medias.json');
@@ -96,7 +146,8 @@ async function loadMedias() {
   }
 }
 
-// Remplissage des filtres
+// Filtres
+
 function populateFilters() {
   populateContinentFilter();
   populatePaysFilter();
@@ -105,7 +156,6 @@ function populateFilters() {
   populateLangueFilter();
 }
 
-// Continent simple (Europe d'abord)
 function populateContinentFilter() {
   const continents = new Set();
   allMedias.forEach(m => {
@@ -128,7 +178,6 @@ function populateContinentFilter() {
   });
 }
 
-// Pays simple (France d'abord)
 function populatePaysFilter() {
   const paysSet = new Set();
   allMedias.forEach(m => {
@@ -151,7 +200,6 @@ function populatePaysFilter() {
   });
 }
 
-// Région avec regroupement Continent / Pays (optgroup)
 function populateRegionFilter() {
   const map = new Map();
 
@@ -230,7 +278,6 @@ function populateRegionFilter() {
   });
 }
 
-// Catégorie
 function populateCategorieFilter() {
   const categories = new Set();
   allMedias.forEach(m => {
@@ -249,7 +296,6 @@ function populateCategorieFilter() {
   });
 }
 
-// Langue
 function populateLangueFilter() {
   const langues = new Set();
   allMedias.forEach(m => {
@@ -268,7 +314,8 @@ function populateLangueFilter() {
   });
 }
 
-// Application des filtres
+// Filtrage
+
 function getFilteredMedias(medias, filters) {
   return medias.filter(m => {
     const continent = safeText(m.continent);
@@ -285,6 +332,8 @@ function getFilteredMedias(medias, filters) {
     if (filters.categorie && categorie !== filters.categorie) return false;
     if (filters.langue && langue !== filters.langue) return false;
 
+    if (filters.onlyFavorites && !isFavorite(m)) return false;
+
     if (filters.search) {
       const q = filters.search.toLowerCase();
       const haystack = `${nom} ${url} ${pays} ${region} ${categorie} ${langue}`.toLowerCase();
@@ -295,7 +344,8 @@ function getFilteredMedias(medias, filters) {
   });
 }
 
-// Rendu des cartes
+// Rendu
+
 function renderMedias() {
   const filtered = getFilteredMedias(allMedias, currentFilters);
   const total = filtered.length;
@@ -353,11 +403,40 @@ function renderMedias() {
     meta.textContent = parts.join(' · ');
     card.appendChild(meta);
 
+    // étoile de favori
+    const favBtn = document.createElement('span');
+    favBtn.className = 'favorite-toggle';
+    if (isFavorite(m)) {
+      favBtn.classList.add('is-favorite');
+      favBtn.textContent = '★';
+    } else {
+      favBtn.textContent = '☆';
+    }
+
+    favBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      toggleFavorite(m);
+      if (isFavorite(m)) {
+        favBtn.classList.add('is-favorite');
+        favBtn.textContent = '★';
+      } else {
+        favBtn.classList.remove('is-favorite');
+        favBtn.textContent = '☆';
+      }
+
+      if (currentFilters.onlyFavorites) {
+        updateUI();
+      }
+    });
+
+    card.appendChild(favBtn);
+
     mediasContainer.appendChild(card);
   });
 }
 
-// Pagination
 function renderPagination() {
   const filtered = getFilteredMedias(allMedias, currentFilters);
   const total = filtered.length;
@@ -400,8 +479,10 @@ function updateUI() {
   renderPagination();
 }
 
-// Tout brancher une fois le DOM prêt
+// Démarrage
+
 document.addEventListener('DOMContentLoaded', () => {
+  loadFavorites();
   loadMedias();
 
   if (continentSelect) {
@@ -447,6 +528,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       currentFilters.search = searchInput.value.trim();
+      currentPage = 1;
+      updateUI();
+    });
+  }
+
+  if (favOnlyCheckbox) {
+    favOnlyCheckbox.addEventListener('change', () => {
+      currentFilters.onlyFavorites = favOnlyCheckbox.checked;
       currentPage = 1;
       updateUI();
     });
