@@ -138,6 +138,7 @@ async function loadMedias() {
 
     allMedias.sort(mediaComparator);
 
+    // initialisation des filtres
     populateFilters();
     updateUI();
   } catch (error) {
@@ -178,11 +179,14 @@ function populateContinentFilter() {
   });
 }
 
-function populatePaysFilter() {
+function populatePaysFilter(continentFilter = '') {
   const paysSet = new Set();
   allMedias.forEach(m => {
+    const c = safeText(m.continent);
     const p = safeText(m.pays);
-    if (p) paysSet.add(p);
+    if (!p) return;
+    if (continentFilter && c !== continentFilter) return;
+    paysSet.add(p);
   });
 
   const sorted = Array.from(paysSet).sort((a, b) => {
@@ -200,7 +204,7 @@ function populatePaysFilter() {
   });
 }
 
-function populateRegionFilter() {
+function populateRegionFilter(continentFilter = '', paysFilter = '') {
   const map = new Map();
 
   allMedias.forEach(m => {
@@ -209,6 +213,8 @@ function populateRegionFilter() {
     const region = safeText(m.region);
 
     if (!region) return;
+    if (continentFilter && continent !== continentFilter) return;
+    if (paysFilter && pays !== paysFilter) return;
 
     const key = `${continent}||${pays}||${region}`;
     if (!map.has(key)) {
@@ -237,6 +243,24 @@ function populateRegionFilter() {
     return a.region.localeCompare(b.region);
   });
 
+  regionSelect.innerHTML = '';
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Toutes les régions';
+  regionSelect.appendChild(defaultOption);
+
+  // si un pays est choisi, pas de regroupement
+  if (paysFilter) {
+    entries.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.region;
+      opt.textContent = item.region;
+      regionSelect.appendChild(opt);
+    });
+    return;
+  }
+
+  // sinon, regroupement par continent/pays
   const groups = [];
   let currentGroupKey = null;
   let currentGroup = null;
@@ -255,12 +279,6 @@ function populateRegionFilter() {
     currentGroup.regions.push(item.region);
   });
   if (currentGroup) groups.push(currentGroup);
-
-  regionSelect.innerHTML = '';
-  const defaultOption = document.createElement('option');
-  defaultOption.value = '';
-  defaultOption.textContent = 'Toutes les régions';
-  regionSelect.appendChild(defaultOption);
 
   groups.forEach(group => {
     const label = `${group.continent} / ${group.pays}`;
@@ -351,7 +369,6 @@ function getFilteredMedias(medias, filters) {
     const categorie = safeText(m.categorie);
     const langue = safeText(m.langue);
     const nom = safeText(m.nom);
-    const url = safeText(m.url);
 
     if (filters.continent && continent !== filters.continent) return false;
     if (filters.pays && pays !== filters.pays) return false;
@@ -363,7 +380,6 @@ function getFilteredMedias(medias, filters) {
 
     if (filters.search) {
       const q = filters.search.toLowerCase();
-      // Recherche limitée au nom du média et au pays
       const haystack = `${nom} ${pays}`.toLowerCase();
       if (!haystack.includes(q)) return false;
     }
@@ -516,6 +532,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (continentSelect) {
     continentSelect.addEventListener('change', () => {
       currentFilters.continent = continentSelect.value;
+      currentFilters.pays = '';
+      currentFilters.region = '';
+      populatePaysFilter(currentFilters.continent);
+      populateRegionFilter(currentFilters.continent, '');
+      paysSelect.value = '';
+      regionSelect.value = '';
       currentPage = 1;
       updateUI();
     });
@@ -524,6 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (paysSelect) {
     paysSelect.addEventListener('change', () => {
       currentFilters.pays = paysSelect.value;
+      currentFilters.region = '';
+      populateRegionFilter(currentFilters.continent, currentFilters.pays);
+      regionSelect.value = '';
       currentPage = 1;
       updateUI();
     });
@@ -590,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // FAVORIS SEULEMENT : réinitialise filtres + recherche
+  // FAVORIS SEULEMENT
 
   if (favOnlyCheckbox) {
     favOnlyCheckbox.addEventListener('change', () => {

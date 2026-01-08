@@ -113,7 +113,7 @@ body {
   transform: scale(1.1);
 }
 
-/* Recherche : case + champ, sans label ni texte */
+/* Recherche : case + champ */
 
 .filter-search {
   background: #111827;
@@ -125,7 +125,6 @@ body {
   gap: 0.4rem;
 }
 
-/* la case garde sa taille, le champ prend tout le reste */
 #searchActiveCheckbox {
   transform: scale(1.1);
   flex: 0 0 auto;
@@ -133,7 +132,7 @@ body {
 
 .filter-search #searchInput {
   flex: 1 1 auto;
-  min-width: 0; /* évite de déborder en flex */
+  min-width: 0;
 }
 
 /* optgroup pour régions */
