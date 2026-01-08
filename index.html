@@ -5,31 +5,24 @@
     <title>Annuaire des médias</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Feuilles de style des drapeaux (librairie flag-icons auto‑hébergée) -->
     <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
-    <!-- Style principal de l'application -->
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<!-- Bandeau supérieur du site -->
 <header class="site-header">
     <h1>Annuaire des médias</h1>
     <p>Explorez des médias par continent, pays, région, catégorie et langue.</p>
 </header>
 
 <main class="site-main">
-    <!-- Bloc contenant tous les filtres -->
     <section class="filters">
-        <!-- Filtre parent : Continent -->
         <div class="filter-group">
             <label for="continentSelect">Continent</label>
-            <!-- Options remplies dynamiquement par app.js -->
             <select id="continentSelect">
                 <option value="">Tous les continents</option>
             </select>
         </div>
 
-        <!-- Filtre enfant : Pays (dépend du continent choisi) -->
         <div class="filter-group">
             <label for="paysSelect">Pays</label>
             <select id="paysSelect">
@@ -37,7 +30,6 @@
             </select>
         </div>
 
-        <!-- Filtre enfant : Région (dépend du continent puis du pays) -->
         <div class="filter-group">
             <label for="regionSelect">Région</label>
             <select id="regionSelect">
@@ -45,7 +37,6 @@
             </select>
         </div>
 
-        <!-- Filtre catégorie de média (radio, TV, presse, etc.) -->
         <div class="filter-group">
             <label for="categorieSelect">Catégorie</label>
             <select id="categorieSelect">
@@ -53,7 +44,6 @@
             </select>
         </div>
 
-        <!-- Filtre langue principale du média -->
         <div class="filter-group">
             <label for="langueSelect">Langue</label>
             <select id="langueSelect">
@@ -61,12 +51,10 @@
             </select>
         </div>
 
-        <!-- Filtre de recherche textuelle : case pour activer + champ texte -->
         <div class="filter-group filter-search">
             <div class="search-row">
-                <!-- Case : indique si le filtre de recherche est actif ou non -->
+                <label for="searchActiveCheckbox" class="sr-only">Activer la recherche</label>
                 <input type="checkbox" id="searchActiveCheckbox" />
-                <!-- Champ de saisie : texte cherché dans nom + pays -->
                 <input
                         type="text"
                         id="searchInput"
@@ -75,30 +63,30 @@
             </div>
         </div>
 
-        <!-- Filtre pour afficher uniquement les favoris -->
         <div class="filter-group filter-fav">
             <label>
                 <input type="checkbox" id="favOnlyCheckbox" />
                 Afficher seulement les favoris
             </label>
         </div>
+
+        <!-- Nouveau groupe : bouton reset + compteur -->
+        <div class="filter-group filter-actions">
+            <button type="button" id="resetFiltersBtn">Réinitialiser</button>
+            <span id="resultCount">‑</span>
+        </div>
     </section>
 
-    <!-- Zone d’affichage des cartes médias + pagination -->
     <section class="medias-section">
-        <!-- Cartes de médias générées en JS -->
         <div id="medias" class="media-list"></div>
-        <!-- Contrôles de pagination générés en JS -->
         <div id="pagination" class="pagination"></div>
     </section>
 </main>
 
-<!-- Pied de page simple -->
 <footer class="site-footer">
     <p>Annuaire médias &copy; 2026</p>
 </footer>
 
-<!-- Logique de l’application (chargement JSON, filtres, favoris…) -->
 <script src="app.js"></script>
 </body>
 </html>

@@ -50,6 +50,39 @@ body {
   align-items: flex-end;
   font-size: 0.9rem;
 }
+/* ... tout le reste inchangé ... */
+
+/* Groupe pour bouton reset + compteur */
+.filter-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Bouton Réinitialiser */
+#resetFiltersBtn {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #f59e0b;
+  background: #111827;
+  color: #fbbf24;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#resetFiltersBtn:hover {
+  background: #f59e0b;
+  color: #111827;
+}
+
+/* Compteur de résultats */
+#resultCount {
+  font-size: 0.8rem;
+  color: #e5e7eb;
+}
 
 /* Fonds pour les filtres */
 
