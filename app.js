@@ -395,7 +395,7 @@ function renderMedias() {
   // Compteur de résultats
   if (resultCountEl) {
     const totalGlobal = allMedias.length;
-    resultCountEl.textContent = `${total} média(s) trouvé(s) / ${totalGlobal}`;
+    resultCountEl.textContent = `${total} médias / ${totalGlobal}`;
   }
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
