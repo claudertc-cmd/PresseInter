@@ -36,6 +36,13 @@ function safeText(value) {
   return String(value);
 }
 
+/**
+ * Supprime les accents d'une chaîne de caractères.
+ */
+function removeAccents(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 // Tri des médias pour avoir un ordre cohérent
 function mediaComparator(a, b) {
   const continentA = safeText(a.continent);
@@ -377,8 +384,8 @@ function getFilteredMedias(medias, filters) {
     if (filters.onlyFavorites && !isFavorite(m)) return false;
 
     if (filters.search) {
-      const q = filters.search.toLowerCase();
-      const haystack = `${nom} ${pays}`.toLowerCase();
+      const q = removeAccents(filters.search.toLowerCase());
+      const haystack = removeAccents(`${nom} ${pays} ${region}`.toLowerCase());
       if (!haystack.includes(q)) return false;
     }
 
@@ -539,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentFilters.pays = '';
       currentFilters.region = '';
       populatePaysFilter(currentFilters.continent);
-      populateRegionFilter(currentFilters.continent, '');
+      populateRegionFilter(currentFilters.continent, currentFilters.pays);
       paysSelect.value = '';
       regionSelect.value = '';
       currentPage = 1;
