@@ -65,9 +65,9 @@ body {
 
 #toggleFiltersBtn, 
 .filter-fav {
-  background: #111827;
-  color: #fbbf24;
-  border: 1px solid #f59e0b;
+  background: #111827 !important;
+  color: #fbbf24 !important;
+  border: 1px solid #f59e0b !important;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
@@ -77,12 +77,13 @@ body {
   gap: 0.5rem;
   transition: background 0.2s, color 0.2s;
   font-size: 0.9rem;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #toggleFiltersBtn:hover,
 .filter-fav:hover {
-  background: #f59e0b;
-  color: #111827;
+  background: #f59e0b !important;
+  color: #111827 !important;
 }
 
 #toggleFiltersBtn::after {
@@ -199,9 +200,10 @@ body {
   align-items: center;
   gap: 0.4rem;
   display: inline-flex;
-  color: inherit;
+  color: inherit !important;
   cursor: pointer;
   margin: 0;
+  font-weight: 600;
 }
 
 .filter-fav input[type="checkbox"] {
