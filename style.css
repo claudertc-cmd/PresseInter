@@ -52,18 +52,69 @@ body {
   padding: 1.5rem 2rem 3rem;
 }
 
-/* Filtres */
+/* Bouton de bascule des filtres et Favoris */
+
+.filters-toggle-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+#toggleFiltersBtn {
+  background: #111827;
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+#toggleFiltersBtn:hover {
+  background: #f59e0b;
+  color: #111827;
+}
+
+#toggleFiltersBtn::after {
+  content: '▼';
+  font-size: 0.7rem;
+  transition: transform 0.3s;
+}
+
+#toggleFiltersBtn.active::after {
+  transform: rotate(180deg);
+}
+
+/* Filtres avec effet de rideau */
 
 .filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.75rem;
-  margin-top: 0.8rem;
   margin-bottom: 1.2rem;
   align-items: flex-end;
   font-size: 0.9rem;
+  
+  /* Rideau */
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease-out, opacity 0.3s, margin 0.3s;
+  opacity: 0;
 }
-/* ... tout le reste inchangé ... */
+
+.filters.show {
+  max-height: 1000px; /* Valeur suffisamment grande */
+  opacity: 1;
+  margin-top: 0.8rem;
+  padding-bottom: 1rem;
+}
 
 /* Groupe pour bouton reset + compteur */
 .filter-actions {
@@ -153,6 +204,7 @@ body {
   display: inline-flex;
   font-size: 0.85rem;
   color: #f9fafb;
+  cursor: pointer;
 }
 
 .filter-fav input[type="checkbox"] {

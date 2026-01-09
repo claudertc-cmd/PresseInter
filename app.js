@@ -9,14 +9,15 @@ const categorieSelect = document.getElementById('categorieSelect');
 const langueSelect = document.getElementById('langueSelect');
 const searchInput = document.getElementById('searchInput');
 const searchActiveCheckbox = document.getElementById('searchActiveCheckbox');
-const paginationEl = document.getElementById('pagination');
 const favOnlyCheckbox = document.getElementById('favOnlyCheckbox');
 const resetFiltersBtn = document.getElementById('resetFiltersBtn');
 const resultCountEl = document.getElementById('resultCount');
 
+// Éléments pour le rideau de filtres
+const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
+const filtersSection = document.getElementById('filtersSection');
+
 let allMedias = [];
-let currentPage = 1;
-const pageSize = 24;
 
 let favoriteSet = new Set();
 
@@ -393,7 +394,7 @@ function getFilteredMedias(medias, filters) {
   });
 }
 
-/* ---------- Affichage des cartes + compteur + pagination ---------- */
+/* ---------- Affichage des cartes + compteur ---------- */
 
 function renderMedias() {
   const filtered = getFilteredMedias(allMedias, currentFilters);
@@ -405,21 +406,14 @@ function renderMedias() {
     resultCountEl.textContent = `${total} médias / ${totalGlobal}`;
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const start = (currentPage - 1) * pageSize;
-  const end = start + pageSize;
-  const pageItems = filtered.slice(start, end);
-
   mediasContainer.innerHTML = '';
 
-  if (pageItems.length === 0) {
+  if (filtered.length === 0) {
     mediasContainer.innerHTML = '<p>Aucun média trouvé.</p>';
     return;
   }
 
-  pageItems.forEach(m => {
+  filtered.forEach(m => {
     const nom = safeText(m.nom);
     const pays = safeText(m.pays);
     const region = safeText(m.region);
@@ -492,46 +486,8 @@ function renderMedias() {
   });
 }
 
-function renderPagination() {
-  const filtered = getFilteredMedias(allMedias, currentFilters);
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  paginationEl.innerHTML = '';
-
-  if (totalPages <= 1) return;
-
-  const prevBtn = document.createElement('button');
-  prevBtn.textContent = 'Précédent';
-  prevBtn.disabled = currentPage === 1;
-  prevBtn.addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
-      updateUI();
-    }
-  });
-
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = 'Suivant';
-  nextBtn.disabled = currentPage === totalPages;
-  nextBtn.addEventListener('click', () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      updateUI();
-    }
-  });
-
-  const info = document.createElement('span');
-  info.textContent = `Page ${currentPage} / ${totalPages}`;
-
-  paginationEl.appendChild(prevBtn);
-  paginationEl.appendChild(info);
-  paginationEl.appendChild(nextBtn);
-}
-
 function updateUI() {
   renderMedias();
-  renderPagination();
 }
 
 /* ---------- Initialisation ---------- */
@@ -539,6 +495,15 @@ function updateUI() {
 document.addEventListener('DOMContentLoaded', () => {
   loadFavorites();
   loadMedias();
+
+  // Gestion du rideau de filtres
+  if (toggleFiltersBtn && filtersSection) {
+    toggleFiltersBtn.addEventListener('click', () => {
+      const isShowing = filtersSection.classList.toggle('show');
+      toggleFiltersBtn.classList.toggle('active', isShowing);
+      toggleFiltersBtn.textContent = isShowing ? 'Masquer les filtres' : 'Afficher les filtres';
+    });
+  }
 
   if (continentSelect) {
     continentSelect.addEventListener('change', () => {
@@ -549,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
       populateRegionFilter(currentFilters.continent, currentFilters.pays);
       paysSelect.value = '';
       regionSelect.value = '';
-      currentPage = 1;
       updateUI();
     });
   }
@@ -560,7 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
       currentFilters.region = '';
       populateRegionFilter(currentFilters.continent, currentFilters.pays);
       regionSelect.value = '';
-      currentPage = 1;
       updateUI();
     });
   }
@@ -568,7 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (regionSelect) {
     regionSelect.addEventListener('change', () => {
       currentFilters.region = regionSelect.value;
-      currentPage = 1;
       updateUI();
     });
   }
@@ -576,7 +538,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (categorieSelect) {
     categorieSelect.addEventListener('change', () => {
       currentFilters.categorie = categorieSelect.value;
-      currentPage = 1;
       updateUI();
     });
   }
@@ -584,7 +545,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (langueSelect) {
     langueSelect.addEventListener('change', () => {
       currentFilters.langue = langueSelect.value;
-      currentPage = 1;
       updateUI();
     });
   }
@@ -597,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (searchActiveCheckbox) {
         searchActiveCheckbox.checked = value.length > 0;
       }
-      currentPage = 1;
       updateUI();
     });
 
@@ -620,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         currentFilters.search = searchInput ? searchInput.value.trim() : '';
       }
-      currentPage = 1;
       updateUI();
     });
   }
@@ -630,7 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
     favOnlyCheckbox.addEventListener('change', () => {
       currentFilters.onlyFavorites = favOnlyCheckbox.checked;
       resetAllFilters(false, true);
-      currentPage = 1;
       updateUI();
     });
   }
@@ -641,7 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
       resetAllFilters(false, false);
       populatePaysFilter();
       populateRegionFilter();
-      currentPage = 1;
       updateUI();
     });
   }

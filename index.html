@@ -15,7 +15,18 @@
 </header>
 
 <main class="site-main">
-    <section class="filters">
+    <div class="filters-toggle-wrapper">
+        <button type="button" id="toggleFiltersBtn">Afficher les filtres</button>
+        
+        <div class="filter-group filter-fav">
+            <label>
+                <input type="checkbox" id="favOnlyCheckbox" />
+                Afficher seulement les favoris
+            </label>
+        </div>
+    </div>
+
+    <section class="filters" id="filtersSection">
         <div class="filter-group">
             <label for="continentSelect">Continent</label>
             <select id="continentSelect">
@@ -64,14 +75,6 @@
             </div>
         </div>
 
-        <div class="filter-group filter-fav">
-            <label>
-                <input type="checkbox" id="favOnlyCheckbox" />
-                Afficher seulement les favoris
-            </label>
-        </div>
-
-        <!-- Nouveau groupe : bouton reset + compteur -->
         <div class="filter-group filter-actions">
             <button type="button" id="resetFiltersBtn">Réinitialiser</button>
             <span id="resultCount">‑</span>
@@ -80,7 +83,6 @@
 
     <section class="medias-section">
         <div id="medias" class="media-list"></div>
-        <div id="pagination" class="pagination"></div>
     </section>
 </main>
 
