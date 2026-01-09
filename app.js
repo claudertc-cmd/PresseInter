@@ -21,6 +21,41 @@ let allMedias = [];
 
 let favoriteSet = new Set();
 
+// Dictionnaire des noms complets des langues
+const langueFullNames = {
+  'fr': 'Français',
+  'en': 'Anglais',
+  'es': 'Espagnol',
+  'pt': 'Portugais',
+  'de': 'Allemand',
+  'it': 'Italien',
+  'nl': 'Néerlandais',
+  'pl': 'Polonais',
+  'ru': 'Russe',
+  'zh': 'Chinois',
+  'hi': 'Hindi',
+  'ta': 'Tamoul',
+  'ml': 'Malayalam',
+  'he': 'Hébreu',
+  'ja': 'Japonais',
+  'id': 'Indonésien',
+  'bg': 'Bulgare',
+  'da': 'Danois',
+  'fi': 'Finnois',
+  'el': 'Grec',
+  'no': 'Norvégien',
+  'sv': 'Suédois',
+  'cs': 'Tchèque',
+  'uk': 'Ukrainien'
+};
+
+/**
+ * Retourne le nom complet d'une langue à partir de son code.
+ */
+function getLangueName(code) {
+  return langueFullNames[code] || code;
+}
+
 // Filtres courants
 const currentFilters = {
   continent: '',
@@ -321,19 +356,22 @@ function populateCategorieFilter() {
 }
 
 function populateLangueFilter() {
-  const langues = new Set();
+  const codes = new Set();
   allMedias.forEach(m => {
     const l = safeText(m.langue);
-    if (l) langues.add(l);
+    if (l) codes.add(l);
   });
 
-  const sorted = Array.from(langues).sort((a, b) => a.localeCompare(b));
+  // Tri par nom complet
+  const sorted = Array.from(codes).sort((a, b) => {
+    return getLangueName(a).localeCompare(getLangueName(b));
+  });
 
   langueSelect.innerHTML = '<option value="">Toutes les langues</option>';
-  sorted.forEach(langue => {
+  sorted.forEach(code => {
     const opt = document.createElement('option');
-    opt.value = langue;
-    opt.textContent = langue;
+    opt.value = code;
+    opt.textContent = getLangueName(code);
     langueSelect.appendChild(opt);
   });
 }
@@ -413,14 +451,28 @@ function renderMedias() {
     return;
   }
 
+  let lastGroupKey = null;
+
   filtered.forEach(m => {
     const nom = safeText(m.nom);
     const pays = safeText(m.pays);
+    const continent = safeText(m.continent);
     const region = safeText(m.region);
     const categorie = safeText(m.categorie);
-    const langue = safeText(m.langue);
+    const langueCode = safeText(m.langue);
     const url = safeText(m.url);
     const codePays = safeText(m.code_pays).toLowerCase();
+
+    const langueFull = getLangueName(langueCode);
+
+    // Détection changement de groupe (Continent + Pays) -> simple saut de ligne
+    const currentGroupKey = `${continent} - ${pays}`;
+    if (currentGroupKey !== lastGroupKey) {
+      const separator = document.createElement('div');
+      separator.className = 'group-separator';
+      mediasContainer.appendChild(separator);
+      lastGroupKey = currentGroupKey;
+    }
 
     const card = document.createElement('a');
     card.className = 'media-card';
@@ -431,6 +483,7 @@ function renderMedias() {
     const header = document.createElement('div');
     header.className = 'media-card-header';
 
+    // Remise du drapeau dans la carte
     if (codePays) {
       const flagSpan = document.createElement('span');
       flagSpan.className = `fi fi-${codePays}`;
@@ -445,11 +498,17 @@ function renderMedias() {
 
     const meta = document.createElement('p');
     meta.className = 'media-meta';
+    
     const parts = [];
-    if (pays) parts.push(pays);
     if (region) parts.push(region);
-    if (categorie) parts.push(categorie);
-    if (langue) parts.push(`Langue : ${langue}`);
+    
+    // Format "Catégorie en Langue"
+    let catLang = categorie;
+    if (langueFull) {
+      catLang += ` en ${langueFull}`;
+    }
+    parts.push(catLang);
+
     meta.textContent = parts.join(' · ');
     card.appendChild(meta);
 
