@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <!-- Méta-données essentielles pour le rendu et le responsive -->
     <meta charset="UTF-8" />
     <title>Annuaire des médias</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Bibliothèques de styles : icônes de drapeaux et feuille de style principale -->
     <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
@@ -15,6 +17,7 @@
 </header>
 
 <main class="site-main">
+    <!-- Contrôles rapides : Affichage du panneau de filtres et bascule des favoris -->
     <div class="filters-toggle-wrapper">
         <button type="button" id="toggleFiltersBtn">Afficher les filtres</button>
         
@@ -26,6 +29,8 @@
         </div>
     </div>
 
+    <!-- Section contenant les différents critères de filtrage (Continent, Pays, etc.) -->
+    <!-- Les options de ces 'select' sont remplies dynamiquement par app.js -->
     <section class="filters" id="filtersSection">
         <div class="filter-group">
             <label for="continentSelect">Continent</label>
@@ -62,6 +67,7 @@
             </select>
         </div>
 
+        <!-- Barre de recherche textuelle avec activation par case à cocher -->
         <div class="filter-group filter-search">
             <div class="search-row">
                 <label for="searchActiveCheckbox" class="sr-only">Activer la recherche</label>
@@ -75,12 +81,14 @@
             </div>
         </div>
 
+        <!-- Bouton pour vider les filtres et compteur de résultats en temps réel -->
         <div class="filter-group filter-actions">
             <button type="button" id="resetFiltersBtn">Réinitialiser</button>
             <span id="resultCount">‑</span>
         </div>
     </section>
 
+    <!-- Conteneur principal où les cartes des médias seront injectées par le JavaScript -->
     <section class="medias-section">
         <div id="medias" class="media-list"></div>
     </section>
@@ -90,6 +98,7 @@
     <p>Annuaire médias &copy; 2026</p>
 </footer>
 
+<!-- Script principal gérant la logique de récupération des données, filtrage et affichage -->
 <script src="app.js"></script>
 </body>
 </html>
