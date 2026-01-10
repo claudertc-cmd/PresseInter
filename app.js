@@ -269,7 +269,7 @@ function getFilteredMedias() {
 /** Génère le HTML pour chaque média et met à jour le compteur */
 function renderMedias() {
   const filtered = getFilteredMedias();
-  resultCountEl.textContent = `${filtered.length} médias / ${allMedias.length}`;
+  resultCountEl.textContent = `(${filtered.length}/${allMedias.length})`;
   mediasContainer.innerHTML = filtered.length ? '' : '<p>Aucun média trouvé.</p>';
 
   filtered.forEach(m => {

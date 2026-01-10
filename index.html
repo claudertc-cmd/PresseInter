@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!-- Méta-données essentielles pour le rendu et le responsive  -->
+    <!-- Méta-données essentielles pour le rendu et le responsive -->
     <meta charset="UTF-8" />
     <title>Annuaire des médias</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,7 +13,7 @@
 <body>
 <header class="site-header">
     <h1>Annuaire des médias</h1>
-    <p>Explorez des médias</p>
+    <p>Explorez des médias <span id="resultCount"></span></p>
 </header>
 
 <main class="site-main">
@@ -24,7 +24,7 @@
         <div class="filter-group filter-fav">
             <label>
                 <input type="checkbox" id="favOnlyCheckbox" />
-                Favoris
+                Vos Favoris
             </label>
         </div>
     </div>
@@ -76,15 +76,14 @@
                 <input
                         type="text"
                         id="searchInput"
-                        placeholder="nom,pays,région..."
+                        placeholder="Rechercher"
                 />
             </div>
         </div>
 
-        <!-- Bouton pour vider les filtres et compteur de résultats en temps réel -->
+        <!-- Bouton pour vider les filtres -->
         <div class="filter-group filter-actions">
             <button type="button" id="resetFiltersBtn">Réinitialiser</button>
-            <span id="resultCount">‑</span>
         </div>
     </section>
 
